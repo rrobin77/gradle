@@ -16,6 +16,7 @@
 
 package org.gradle.testing
 
+import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Splitter
 import groovy.json.JsonOutput
 import groovy.transform.CompileStatic
@@ -26,6 +27,9 @@ import groovyx.net.http.HttpResponseException
 import groovyx.net.http.RESTClient
 import org.apache.commons.io.input.CloseShieldInputStream
 import org.gradle.api.GradleException
+import org.gradle.api.internal.tasks.testing.junit.result.TestClassResult
+import org.gradle.api.internal.tasks.testing.junit.result.TestMethodResult
+import org.gradle.api.internal.tasks.testing.junit.result.TestResultSerializer
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -35,6 +39,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.testing.TestListener
 import org.gradle.api.tasks.testing.TestOutputListener
+import org.gradle.api.tasks.testing.TestResult
 import org.gradle.initialization.BuildCancellationToken
 import org.gradle.process.CommandLineArgumentProvider
 import org.openmbee.junit.JUnitMarshalling
@@ -44,6 +49,7 @@ import org.openmbee.junit.model.JUnitTestSuite
 
 import javax.inject.Inject
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 import java.util.zip.ZipInputStream
 
 /**
@@ -86,7 +92,9 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
 
     private Map<String, Scenario> scheduledBuilds = [:]
 
-    private Map<String, ScenarioResult> finishedBuilds = [:]
+    @Internal
+    @VisibleForTesting
+    Map<String, ScenarioResult> finishedBuilds = [:]
 
     private final JUnitXmlTestEventsGenerator testEventsGenerator
 
@@ -128,9 +136,35 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
             e.printStackTrace()
             throw e
         } finally {
-            generatePerformanceReport()
+            writeBinaryResults()
+            if(isSuccessfulFirstRun() || isRerun()) {
+                generatePerformanceReport()
+            }
             testEventsGenerator.release()
         }
+    }
+
+    private boolean isSuccessfulFirstRun() {
+        return !isRerun() && finishedBuilds.values().every { it.successful }
+    }
+
+    private boolean isRerun() {
+        return project.findProperty('onlyPreviousFailedTestClasses') as boolean
+    }
+
+    @VisibleForTesting
+    void writeBinaryResults() {
+        AtomicLong counter = new AtomicLong()
+        Map<String, List<ScenarioResult>> classNameToScenarioNames = finishedBuilds.values().groupBy { it.testClassFullName }
+        List<TestClassResult> classResults = classNameToScenarioNames.entrySet().collect { Map.Entry<String, List<ScenarioResult>> entry ->
+            TestClassResult classResult = new TestClassResult(counter.incrementAndGet(), entry.key, 0L)
+            entry.value.each { ScenarioResult scenarioResult ->
+                classResult.add(scenarioResult.toMethodResult(counter))
+            }
+            classResult
+        }
+
+        new TestResultSerializer(getBinResultsDir()).write(classResults)
     }
 
     @Override
@@ -438,9 +472,27 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
         }
     }
 
-    private static class ScenarioResult {
+    static class ScenarioResult {
         String name
         Map buildResult
         JUnitTestSuite testSuite
+
+        String getTestClassFullName() {
+            return testSuite.name
+        }
+
+        boolean isSuccessful() {
+            return buildResult.status == 'SUCCESS'
+        }
+
+        TestMethodResult toMethodResult(AtomicLong counter) {
+            return new TestMethodResult(
+                counter.incrementAndGet(),
+                name,
+                name,
+                isSuccessful() ? TestResult.ResultType.SUCCESS : TestResult.ResultType.FAILURE,
+                0L,
+                0L)
+        }
     }
 }
