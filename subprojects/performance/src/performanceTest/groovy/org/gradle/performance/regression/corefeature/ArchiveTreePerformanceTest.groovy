@@ -52,6 +52,7 @@ class ArchiveTreePerformanceTest extends AbstractCrossVersionPerformanceTest {
         runner.tasksToRun = ['visitTarGz']
 
         when:
+        assert false
         def result = runner.run()
 
         then:

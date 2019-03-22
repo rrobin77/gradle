@@ -60,6 +60,6 @@ class PerformanceTest(model: CIBuildModel, type: PerformanceTestType, stage: Sta
         }
     }
 
-    applyDefaultDependencies(model, this, true)
+//    applyDefaultDependencies(model, this, true)
 })
 
