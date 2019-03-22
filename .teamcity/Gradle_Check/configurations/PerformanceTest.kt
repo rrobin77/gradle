@@ -32,9 +32,9 @@ class PerformanceTest(model: CIBuildModel, type: PerformanceTestType, stage: Sta
     fun BuildSteps.runner(runnerName: String, runnerTasks: String, extraParameters: String = "") {
         gradleWrapper {
             name = runnerName
-            tasks = "clean ${runnerTasks}"
-            gradleParams = (buildToolGradleParameters(isContinue = false)
-                + performanceTestParameters(baselines = "%performance.baselines%", extraParameters = type.extraParameters)
+            tasks = ""
+            gradleParams = (performanceTestCommandLine(task= runnerTasks, baselines = "%performance.baselines%", extraParameters = type.extraParameters)
+                + buildToolGradleParameters(isContinue = false)
                 + distributedPerformanceTestParameters(IndividualPerformanceScenarioWorkers(model).id.toString())
                 + listOf(buildScanTag("PerformanceTest"))
                 + model.parentBuildCache.gradleParameters(Os.linux)

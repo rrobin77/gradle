@@ -49,14 +49,6 @@ class PerformanceTestBuildTypeTest {
         ), performanceTest.steps.items.map(BuildStep::name))
 
         val expectedRunnerParams = listOf(
-                "-PmaxParallelForks=%maxParallelForks%",
-                "-s",
-                "--daemon",
-                "",
-                "-I",
-                "\"%teamcity.build.checkoutDir%/gradle/init-scripts/build-scan.init.gradle.kts\"",
-                "-Dorg.gradle.internal.tasks.createops",
-                "-Dorg.gradle.internal.plugins.portal.url.override=%gradle.plugins.portal.url%",
                 "--baselines",
                 "%performance.baselines%",
                 "",
@@ -69,6 +61,14 @@ class PerformanceTestBuildTypeTest {
                 "-PteamCityUsername=%teamcity.username.restbot%",
                 "-PteamCityPassword=%teamcity.password.restbot%",
                 "-PtestJavaHome=%linux.java8.oracle.64bit%",
+                "-PmaxParallelForks=%maxParallelForks%",
+                "-s",
+                "--daemon",
+                "",
+                "-I",
+                "\"%teamcity.build.checkoutDir%/gradle/init-scripts/build-scan.init.gradle.kts\"",
+                "-Dorg.gradle.internal.tasks.createops",
+                "-Dorg.gradle.internal.plugins.portal.url.override=%gradle.plugins.portal.url%",
                 "-Porg.gradle.performance.buildTypeId=Gradle_Check_IndividualPerformanceScenarioWorkersLinux",
                 "-Porg.gradle.performance.workerTestTaskName=fullPerformanceTest",
                 "-Porg.gradle.performance.coordinatorBuildId=%teamcity.build.id%",
@@ -79,12 +79,20 @@ class PerformanceTestBuildTypeTest {
                 "\"-Dgradle.cache.remote.password=%gradle.cache.remote.password%\""
         )
 
-        assertEquals(expectedRunnerParams.joinToString(" "), performanceTest.getGradleStep("GRADLE_RUNNER").gradleParams!!.trim())
-        assertEquals("clean distributedPerformanceTests", performanceTest.getGradleStep("GRADLE_RUNNER").tasks)
+        assertEquals(
+                (listOf("clean", "distributedPerformanceTests") + expectedRunnerParams).joinToString(" "),
+                performanceTest.getGradleStep("GRADLE_RUNNER").gradleParams!!.trim()
+        )
 
-        val expectedRerunnerParams = expectedRunnerParams + "-PteamCityBuildId=%teamcity.build.id%" + "-PonlyPreviousFailedTestClasses=true" + "-PgithubToken=%github.ci.oauth.token%"
-        assertEquals(expectedRerunnerParams.joinToString(" "), performanceTest.getGradleStep("GRADLE_RERUNNER").gradleParams)
-        assertEquals("clean tagBuild distributedPerformanceTests", performanceTest.getGradleStep("GRADLE_RERUNNER").tasks)
+        assertEquals(
+                (listOf("clean", "tagBuild", "distributedPerformanceTests")
+                        + expectedRunnerParams
+                        + "-PteamCityBuildId=%teamcity.build.id%"
+                        + "-PonlyPreviousFailedTestClasses=true"
+                        + "-PgithubToken=%github.ci.oauth.token%"
+                        ).joinToString(" "),
+                performanceTest.getGradleStep("GRADLE_RERUNNER").gradleParams
+        )
     }
 
     private
