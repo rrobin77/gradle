@@ -137,7 +137,7 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
             throw e
         } finally {
             writeBinaryResults()
-            if(isSuccessfulFirstRun() || isRerun()) {
+            if (isSuccessfulFirstRun() || isRerun()) {
                 generatePerformanceReport()
             }
             testEventsGenerator.release()
@@ -478,6 +478,7 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
         JUnitTestSuite testSuite
 
         String getTestClassFullName() {
+            assert testSuite.name: "test suite name is null: ${name} ${buildResult}"
             return testSuite.name
         }
 
@@ -486,6 +487,7 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
         }
 
         TestMethodResult toMethodResult(AtomicLong counter) {
+            assert name: "scenario name is null: ${buildResult}"
             return new TestMethodResult(
                 counter.incrementAndGet(),
                 name,
