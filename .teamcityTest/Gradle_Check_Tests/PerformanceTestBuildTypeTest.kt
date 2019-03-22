@@ -83,6 +83,7 @@ class PerformanceTestBuildTypeTest {
                 (listOf("clean", "distributedPerformanceTests") + expectedRunnerParams).joinToString(" "),
                 performanceTest.getGradleStep("GRADLE_RUNNER").gradleParams!!.trim()
         )
+        assertEquals(BuildStep.ExecutionMode.DEFAULT, performanceTest.getGradleStep("GRADLE_RUNNER").executionMode)
 
         assertEquals(
                 (listOf("clean", "tagBuild", "distributedPerformanceTests")
@@ -93,6 +94,7 @@ class PerformanceTestBuildTypeTest {
                         ).joinToString(" "),
                 performanceTest.getGradleStep("GRADLE_RERUNNER").gradleParams
         )
+        assertEquals(BuildStep.ExecutionMode.ALWAYS, performanceTest.getGradleStep("GRADLE_RERUNNER").executionMode)
     }
 
     private
