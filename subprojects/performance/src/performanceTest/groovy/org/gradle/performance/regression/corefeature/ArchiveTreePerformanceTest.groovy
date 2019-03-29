@@ -21,6 +21,8 @@ import org.gradle.performance.AbstractCrossVersionPerformanceTest
 class ArchiveTreePerformanceTest extends AbstractCrossVersionPerformanceTest {
     def setup() {
         runner.targetVersions = ["5.3-20190206000050+0000"]
+        runner.warmUpRuns = 1
+        runner.runs = 1
     }
 
     def "visiting zip trees"() {
@@ -52,7 +54,7 @@ class ArchiveTreePerformanceTest extends AbstractCrossVersionPerformanceTest {
         runner.tasksToRun = ['visitTarGz']
 
         when:
-        assert false
+        assert (System.getProperty('onlyPreviousFailedTestClasses') as boolean)
         def result = runner.run()
 
         then:

@@ -257,15 +257,18 @@ class PerformanceTestPlugin : Plugin<Project> {
         create("distributedPerformanceTest") {
             (options as JUnitOptions).excludeCategories(performanceExperimentCategory)
             channel = "commits"
+            hasRerun = true
         }
         create("distributedPerformanceExperiment") {
             (options as JUnitOptions).includeCategories(performanceExperimentCategory)
             channel = "experiments"
+            hasRerun = true
         }
         create("distributedFullPerformanceTest") {
             setBaselines(Config.baseLineList)
             checks = "none"
             channel = "historical"
+            hasRerun = false
         }
         create("distributedFlakinessDetection") {
             (options as JUnitOptions).excludeCategories(performanceExperimentCategory)
@@ -273,6 +276,7 @@ class PerformanceTestPlugin : Plugin<Project> {
             repeat = 3
             checks = "none"
             channel = "flakiness-detection"
+            hasRerun = false
         }
     }
 
