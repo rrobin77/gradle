@@ -37,8 +37,8 @@ class PerformanceTestBuildTypeTest {
                         SpecificBuild.Gradleception,
                         SpecificBuild.SmokeTests),
                 functionalTests = listOf(
-                        TestCoverage(TestType.platform, Os.linux, JvmVersion.java8),
-                        TestCoverage(TestType.platform, Os.windows, JvmVersion.java11, vendor = JvmVendor.openjdk)),
+                        TestCoverage(1, TestType.platform, Os.linux, JvmVersion.java8),
+                        TestCoverage(2, TestType.platform, Os.windows, JvmVersion.java11, vendor = JvmVendor.openjdk)),
                 performanceTests = listOf(PerformanceTestType.test),
                 omitsSlowProjects = true))
 
@@ -94,7 +94,7 @@ class PerformanceTestBuildTypeTest {
                         ).joinToString(" "),
                 performanceTest.getGradleStep("GRADLE_RERUNNER").gradleParams
         )
-        assertEquals(BuildStep.ExecutionMode.ALWAYS, performanceTest.getGradleStep("GRADLE_RERUNNER").executionMode)
+        assertEquals(BuildStep.ExecutionMode.RUN_ON_FAILURE, performanceTest.getGradleStep("GRADLE_RERUNNER").executionMode)
     }
 
     private

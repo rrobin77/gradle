@@ -54,7 +54,7 @@ class PerformanceTest(model: CIBuildModel, type: PerformanceTestType, stage: Sta
                     "-PteamCityBuildId=%teamcity.build.id%",
                     "-PonlyPreviousFailedTestClasses=true",
                     "-PgithubToken=%github.ci.oauth.token%")
-            runner("GRADLE_RERUNNER", "tagBuild distributed${type.taskId}s", rerunnerParameters.joinToString(" "), ExecutionMode.ALWAYS)
+            runner("GRADLE_RERUNNER", "tagBuild distributed${type.taskId}s", rerunnerParameters.joinToString(" "), ExecutionMode.RUN_ON_FAILURE)
         } else {
             tagBuild(model, true)
         }
