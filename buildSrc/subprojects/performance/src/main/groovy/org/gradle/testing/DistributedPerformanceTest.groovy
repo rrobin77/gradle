@@ -27,9 +27,7 @@ import groovyx.net.http.HttpResponseException
 import groovyx.net.http.RESTClient
 import org.apache.commons.io.input.CloseShieldInputStream
 import org.gradle.api.GradleException
-import org.gradle.api.internal.tasks.testing.junit.result.TestClassResult
 import org.gradle.api.internal.tasks.testing.junit.result.TestMethodResult
-import org.gradle.api.internal.tasks.testing.junit.result.TestResultSerializer
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -88,12 +86,6 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
     @Internal
     int repeat = 1
 
-    /**
-     * If a distributed performance test supports rerun, it will be auto-rerun after initial failure.
-     */
-    @Internal
-    boolean hasRerun
-
     @OutputFile
     @PathSensitive(PathSensitivity.RELATIVE)
     File scenarioList
@@ -146,46 +138,9 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
             e.printStackTrace()
             throw e
         } finally {
-            writeBinaryResults()
-            if (shouldGenerateReport()) {
-                generatePerformanceReport()
-            }
+            generatePerformanceReport()
             testEventsGenerator.release()
         }
-    }
-
-    private boolean shouldGenerateReport() {
-        if (hasRerun) {
-            return isSuccessfulFirstRun() || isRerun()
-        } else {
-            return true
-        }
-    }
-
-    private boolean isSuccessfulFirstRun() {
-        return !isRerun() && finishedBuilds.values().every { it.successful }
-    }
-
-    private boolean isRerun() {
-        return project.findProperty('onlyPreviousFailedTestClasses') as boolean
-    }
-
-    /**
-     * This is for tagging plugin. See https://github.com/gradle/ci-health/blob/3e30ea146f594ee54a4efe4384f933534b40739c/gradle-build-tag-plugin/src/main/groovy/org/gradle/ci/tagging/plugin/TagSingleBuildPlugin.groovy
-     */
-    @VisibleForTesting
-    void writeBinaryResults() {
-        AtomicLong counter = new AtomicLong()
-        Map<String, List<ScenarioResult>> classNameToScenarioNames = finishedBuilds.values().findAll { it.testClassFullName != null }.groupBy { it.testClassFullName }
-        List<TestClassResult> classResults = classNameToScenarioNames.entrySet().collect { Map.Entry<String, List<ScenarioResult>> entry ->
-            TestClassResult classResult = new TestClassResult(counter.incrementAndGet(), entry.key, 0L)
-            entry.value.each { ScenarioResult scenarioResult ->
-                classResult.add(scenarioResult.toMethodResult(counter))
-            }
-            classResult
-        }
-
-        new TestResultSerializer(getBinResultsDir()).write(classResults)
     }
 
     @Override
@@ -205,7 +160,7 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
 
         fillScenarioList()
 
-        def scenarios = scenarioList.readLines().findAll { it.contains('visiting') }.collect { String line -> new Scenario(line) }.sort { -it.estimatedRuntime }
+        def scenarios = scenarioList.readLines().collect { String line -> new Scenario(line) }.sort { -it.estimatedRuntime }
 
         createClient()
 
@@ -222,12 +177,17 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
         checkForErrors()
     }
 
+    @Internal
+    protected boolean isRerun() {
+        return Boolean.parseBoolean(project.findProperty('onlyPreviousFailedTestClasses')?.toString())
+    }
+
     private void fillScenarioList() {
-        assert scenarioList.createNewFile()
-        scenarioList.text = '''visiting zip trees;200977;archivePerformanceProject
-visiting tar trees;167257;archivePerformanceProject
-visiting gzip tar trees;163034;archivePerformanceProject'''
-//        super.executeTests()
+//        assert scenarioList.createNewFile()
+//        scenarioList.text = '''visiting zip trees;200977;archivePerformanceProject
+//visiting tar trees;167257;archivePerformanceProject
+//visiting gzip tar trees;163034;archivePerformanceProject'''
+        super.executeTests()
     }
 
     @TypeChecked(TypeCheckingMode.SKIP)
@@ -243,7 +203,7 @@ visiting gzip tar trees;163034;archivePerformanceProject'''
                     [name: 'runs', value: runs ?: 'defaults'],
                     [name: 'checks', value: checks ?: 'all'],
                     [name: 'channel', value: channel ?: 'commits'],
-                    [name: "env.ORG_GRADLE_PROJECT_onlyPreviousFailedTestClasses", value: isRerun().toString()]
+                    [name: "env.ORG_GRADLE_PROJECT_reruning", value: isRerun().toString()]
                 ]
             ]
         ]
@@ -504,7 +464,6 @@ visiting gzip tar trees;163034;archivePerformanceProject'''
         JUnitTestSuite testSuite
 
         String getTestClassFullName() {
-//            assert testSuite.name: "test suite name is null: ${name} ${buildResult}"
             return testSuite.name
         }
 
@@ -513,7 +472,6 @@ visiting gzip tar trees;163034;archivePerformanceProject'''
         }
 
         TestMethodResult toMethodResult(AtomicLong counter) {
-            assert name: "scenario name is null: ${buildResult}"
             return new TestMethodResult(
                 counter.incrementAndGet(),
                 name,
