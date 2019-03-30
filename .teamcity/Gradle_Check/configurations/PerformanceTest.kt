@@ -47,7 +47,7 @@ class PerformanceTest(model: CIBuildModel, type: PerformanceTestType, stage: Sta
     }
 
     steps {
-        runner("GRADLE_RUNNER", "distributed${type.taskId}s")
+        runner("GRADLE_RUNNER", "clean distributed${type.taskId}s")
         checkCleanM2()
         if (type.hasRerunner) {
             val rerunnerParameters = listOf(
@@ -60,6 +60,6 @@ class PerformanceTest(model: CIBuildModel, type: PerformanceTestType, stage: Sta
         }
     }
 
-//    applyDefaultDependencies(model, this, true)
+    applyDefaultDependencies(model, this, true)
 })
 

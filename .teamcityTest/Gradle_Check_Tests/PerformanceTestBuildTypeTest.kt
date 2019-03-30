@@ -86,7 +86,7 @@ class PerformanceTestBuildTypeTest {
         assertEquals(BuildStep.ExecutionMode.DEFAULT, performanceTest.getGradleStep("GRADLE_RUNNER").executionMode)
 
         assertEquals(
-                (listOf("clean", "tagBuild", "distributedPerformanceTests")
+                (listOf("tagBuild", "distributedPerformanceTests")
                         + expectedRunnerParams
                         + "-PteamCityBuildId=%teamcity.build.id%"
                         + "-PonlyPreviousFailedTestClasses=true"
