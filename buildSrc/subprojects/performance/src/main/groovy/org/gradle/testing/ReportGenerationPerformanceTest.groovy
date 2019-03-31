@@ -47,8 +47,7 @@ abstract class ReportGenerationPerformanceTest extends PerformanceTest {
     protected abstract List<ScenarioBuildResultData> generateResultsForReport()
 
     protected void generatePerformanceReport() {
-        resultsJson.createNewFile()
-        resultsJson.text = JsonOutput.toJson(generateResultsForReport())
+        generateResultsJson()
 
         project.delete(reportDir)
         project.javaexec(new Action<JavaExecSpec>() {
@@ -60,6 +59,11 @@ abstract class ReportGenerationPerformanceTest extends PerformanceTest {
                 spec.setClasspath(ReportGenerationPerformanceTest.this.getClasspath())
             }
         })
+    }
+
+    protected void generateResultsJson() {
+        resultsJson.createNewFile()
+        resultsJson.text = JsonOutput.toJson(generateResultsForReport())
     }
 
     @TypeChecked(TypeCheckingMode.SKIP)

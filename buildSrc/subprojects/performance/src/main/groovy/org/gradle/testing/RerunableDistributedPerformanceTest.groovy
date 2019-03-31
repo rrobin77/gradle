@@ -49,6 +49,8 @@ class RerunableDistributedPerformanceTest extends DistributedPerformanceTest {
     protected void generatePerformanceReport() {
         if (!isFailedFirstRun()) {
             super.generatePerformanceReport()
+        } else {
+            generateResultsJson()
         }
     }
 
