@@ -225,7 +225,7 @@ public class PerformanceTest extends DistributionTest {
             addSystemPropertyIfExist(result, "org.gradle.performance.execution.runs", runs);
             addSystemPropertyIfExist(result, "org.gradle.performance.regression.checks", checks);
             addSystemPropertyIfExist(result, "org.gradle.performance.execution.channel", channel);
-            addSystemPropertyIfExist(result, "reruning", getProject().findProperty("reruning"));
+            addSystemPropertyIfExist(result, "rerunning", getProject().findProperty("rerunning"));
 
             if (flamegraphs) {
                 File artifactsDirectory = new File(getDebugArtifactsDirectory(), "flames");

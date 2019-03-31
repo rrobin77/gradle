@@ -57,7 +57,7 @@ class ArchiveTreePerformanceTest extends AbstractCrossVersionPerformanceTest {
         def result = runner.run()
 
         then:
-        assert Boolean.getBoolean('reruning')
+        assert Boolean.getBoolean('rerunning')
         result.assertCurrentVersionHasNotRegressed()
     }
 }

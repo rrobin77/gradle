@@ -183,10 +183,6 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
     }
 
     private void fillScenarioList() {
-//        assert scenarioList.createNewFile()
-//        scenarioList.text = '''visiting zip trees;200977;archivePerformanceProject
-//visiting tar trees;167257;archivePerformanceProject
-//visiting gzip tar trees;163034;archivePerformanceProject'''
         super.executeTests()
     }
 
@@ -203,7 +199,7 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
                     [name: 'runs', value: runs ?: 'defaults'],
                     [name: 'checks', value: checks ?: 'all'],
                     [name: 'channel', value: channel ?: 'commits'],
-                    [name: "env.ORG_GRADLE_PROJECT_reruning", value: isRerun().toString()]
+                    [name: "env.ORG_GRADLE_PROJECT_rerunning", value: isRerun().toString()]
                 ]
             ]
         ]
