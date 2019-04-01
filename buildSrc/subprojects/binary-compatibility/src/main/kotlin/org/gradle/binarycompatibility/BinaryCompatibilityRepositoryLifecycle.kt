@@ -22,6 +22,7 @@ import me.champeau.gradle.japicmp.report.ViolationCheckContext
 import me.champeau.gradle.japicmp.report.ViolationCheckContextWithViolations
 
 import java.io.File
+import java.util.function.Supplier
 
 
 class BinaryCompatibilityRepositorySetupRule(private val params: Map<String, Any>) : SetupRule {
@@ -30,24 +31,33 @@ class BinaryCompatibilityRepositorySetupRule(private val params: Map<String, Any
         const val REPOSITORY_CONTEXT_KEY = "binaryCompatibilityRepository"
     }
 
-    /**
-     * Each param is a `Set<String>`.
-     */
     object Params {
+
+        /**
+         * Parameter is a `Set<String>`.
+         */
         val currentSourceRoots = "currentSourceRoots"
-        val currentClasspath = "currentClasspath"
+
+        /**
+         * Parameter is a Supplier<Set<String>>
+         */
+        val currentClasspathSupplier = "currentClasspathSupplier"
     }
 
     override fun execute(context: ViolationCheckContext) {
         (context.userData as MutableMap<String, Any?>)[REPOSITORY_CONTEXT_KEY] = BinaryCompatibilityRepository.openRepositoryFor(
             param(Params.currentSourceRoots),
-            param(Params.currentClasspath)
+            paramSupplier(Params.currentClasspathSupplier)
         )
     }
 
     private
     fun param(name: String): List<File> =
         (params[name] as? Set<String>)?.map(::File) ?: emptyList()
+
+    private
+    fun paramSupplier(name: String): List<File> =
+        (params[name] as? Supplier<Set<String>>)?.get()?.map(::File) ?: emptyList()
 }
 
 

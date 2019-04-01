@@ -29,6 +29,8 @@ import org.gradle.binarycompatibility.rules.NewIncubatingAPIRule
 import org.gradle.binarycompatibility.rules.SinceAnnotationMissingRule
 import org.gradle.binarycompatibility.rules.SinceAnnotationMissingRuleCurrentGradleVersionSetup
 
+import java.util.function.Supplier
+
 
 class BinaryCompatibilityHelper {
 
@@ -40,11 +42,9 @@ class BinaryCompatibilityHelper {
     ) {
         japicmpTask.tap {
 
-            def currentClasspath = newClasspath.collect { it.absolutePath } as Set
-
             addExcludeFilter(KotlinInternalFilter)
 
-            richReport {
+            richReport.tap {
                 addRule(IncubatingInternalInterfaceAddedRule, [
                     acceptedApiChanges: acceptedViolations.toAcceptedChangesMap(),
                     publicApiPatterns: richReport.includedClasses
@@ -61,7 +61,9 @@ class BinaryCompatibilityHelper {
                 addSetupRule(AcceptedRegressionsRuleSetup, acceptedViolations.toAcceptedChangesMap())
                 addSetupRule(BinaryCompatibilityRepositorySetupRule, [
                     (BinaryCompatibilityRepositorySetupRule.Params.currentSourceRoots): currentSourceRoots,
-                    (BinaryCompatibilityRepositorySetupRule.Params.currentClasspath): currentClasspath
+                    (BinaryCompatibilityRepositorySetupRule.Params.currentClasspathSupplier): {
+                        newClasspath.files.collect { it.absolutePath } as Set
+                    } as Supplier
                 ])
                 addSetupRule(SinceAnnotationMissingRuleCurrentGradleVersionSetup, [currentVersion: currentVersion])
 
