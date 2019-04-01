@@ -1,6 +1,12 @@
 package configurations
 
-import common.*
+import common.Os
+import common.applyPerformanceTestSettings
+import common.buildToolGradleParameters
+import common.checkCleanM2
+import common.distributedPerformanceTestParameters
+import common.gradleWrapper
+import common.performanceTestCommandLine
 import jetbrains.buildServer.configs.kotlin.v2018_2.AbsoluteId
 import jetbrains.buildServer.configs.kotlin.v2018_2.BuildStep
 import jetbrains.buildServer.configs.kotlin.v2018_2.BuildStep.ExecutionMode

@@ -76,6 +76,10 @@ class RerunableDistributedPerformanceTest extends DistributedPerformanceTest {
         return !isRerun() && !finishedBuilds.values().every { it.successful }
     }
 
+    private boolean isRerun() {
+        return Boolean.parseBoolean(project.findProperty("onlyPreviousFailedTestClasses")?.toString())
+    }
+
     @Override
     protected List<ScenarioBuildResultData> generateResultsForReport() {
         List<ScenarioBuildResultData> resultData = readFirstRunResultData()

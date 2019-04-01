@@ -21,7 +21,12 @@ import configurations.BaseGradleBuildType
 import configurations.PerformanceTest
 import jetbrains.buildServer.configs.kotlin.v2018_2.BuildStep
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.GradleBuildStep
-import model.*
+import model.PerformanceTestType
+import model.SpecificBuild
+import model.Stage
+import model.StageNames
+import model.TestCoverage
+import model.TestType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

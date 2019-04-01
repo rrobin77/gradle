@@ -47,7 +47,8 @@ public class IndexPageGenerator extends AbstractTablePageGenerator {
         .thenComparing(comparing(ScenarioBuildResultData::isAboutToRegress).reversed())
         .thenComparing(comparing(ScenarioBuildResultData::getDifferenceSortKey).reversed())
         .thenComparing(comparing(ScenarioBuildResultData::getDifferencePercentage).reversed())
-        .thenComparing(ScenarioBuildResultData::getScenarioName);
+        .thenComparing(ScenarioBuildResultData::getScenarioName)
+        .thenComparing(ScenarioBuildResultData::getTeamCityBuildId);
 
     public IndexPageGenerator(ResultsStore resultsStore, File resultJson) {
         super(resultsStore, resultJson);

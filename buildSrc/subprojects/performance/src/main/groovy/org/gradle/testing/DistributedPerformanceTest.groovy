@@ -177,11 +177,6 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
         checkForErrors()
     }
 
-    @Internal
-    protected boolean isRerun() {
-        return Boolean.parseBoolean(project.findProperty('onlyPreviousFailedTestClasses')?.toString())
-    }
-
     private void fillScenarioList() {
         super.executeTests()
     }
@@ -198,8 +193,7 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
                     [name: 'warmups', value: warmups ?: 'defaults'],
                     [name: 'runs', value: runs ?: 'defaults'],
                     [name: 'checks', value: checks ?: 'all'],
-                    [name: 'channel', value: channel ?: 'commits'],
-                    [name: "env.ORG_GRADLE_PROJECT_rerunning", value: isRerun().toString()]
+                    [name: 'channel', value: channel ?: 'commits']
                 ]
             ]
         ]
