@@ -80,7 +80,7 @@ class DistributedPerformanceTest extends ReportGenerationPerformanceTest {
     String teamCityPassword
 
     /**
-     * In FlakinessDetectionPerformanceTest, we simply repat all scenarios several times.
+     * In FlakinessDetectionPerformanceTest, we simply repeat all scenarios several times.
      * This field is used to control the iteration count.
      */
     @Internal

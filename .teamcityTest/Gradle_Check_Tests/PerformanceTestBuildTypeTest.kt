@@ -18,7 +18,7 @@ import common.JvmVendor
 import common.JvmVersion
 import common.Os
 import configurations.BaseGradleBuildType
-import configurations.PerformanceTest
+import configurations.PerformanceTestCoordinator
 import jetbrains.buildServer.configs.kotlin.v2018_2.BuildStep
 import jetbrains.buildServer.configs.kotlin.v2018_2.buildSteps.GradleBuildStep
 import model.PerformanceTestType
@@ -36,7 +36,7 @@ class PerformanceTestBuildTypeTest {
 
     @Test
     fun `create correct PerformanceTest build type`() {
-        val performanceTest = PerformanceTest(buildModel, PerformanceTestType.test, Stage(StageNames.READY_FOR_MERGE,
+        val performanceTest = PerformanceTestCoordinator(buildModel, PerformanceTestType.test, Stage(StageNames.READY_FOR_MERGE,
                 specificBuilds = listOf(
                         SpecificBuild.BuildDistributions,
                         SpecificBuild.Gradleception,

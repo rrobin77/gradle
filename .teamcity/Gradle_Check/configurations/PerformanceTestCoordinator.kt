@@ -15,7 +15,7 @@ import model.CIBuildModel
 import model.PerformanceTestType
 import model.Stage
 
-class PerformanceTest(model: CIBuildModel, type: PerformanceTestType, stage: Stage) : BaseGradleBuildType(model, stage = stage, init = {
+class PerformanceTestCoordinator(model: CIBuildModel, type: PerformanceTestType, stage: Stage) : BaseGradleBuildType(model, stage = stage, init = {
     uuid = type.asId(model)
     id = AbsoluteId(uuid)
     name = "Performance ${type.name.capitalize()} Coordinator - Linux"
@@ -26,11 +26,6 @@ class PerformanceTest(model: CIBuildModel, type: PerformanceTestType, stage: Sta
         features {
             publishBuildStatusToGithub()
         }
-    }
-
-    requirements {
-        // We observed some relocatability issues with its inputs and it is a long running job
-        doesNotContain("teamcity.agent.name", "ec2")
     }
 
     params {

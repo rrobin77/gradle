@@ -21,6 +21,7 @@ import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import org.gradle.api.internal.tasks.testing.junit.result.TestClassResult
 import org.gradle.api.internal.tasks.testing.junit.result.TestResultSerializer
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.initialization.BuildCancellationToken
 
@@ -28,6 +29,7 @@ import javax.inject.Inject
 import java.util.concurrent.atomic.AtomicLong
 
 @CompileStatic
+@CacheableTask
 class RerunableDistributedPerformanceTest extends DistributedPerformanceTest {
 
     @Inject
